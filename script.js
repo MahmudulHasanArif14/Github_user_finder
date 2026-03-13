@@ -31,13 +31,30 @@ const extraSkeletons = [
   document.getElementById("extraSkeleton4"),
 ];
 
-const fetchUser = async (username) => {
-  const response = await fetch(`https://api.github.com/users/${username}`);
-  if (!response.ok) {
-    throw new Error("User not found");
-  }
-  return response.json();
+
+const fetchUser= (username) => {
+  return fetch(`https://api.github.com/users/${username}`).then((response) => response.json())
+  .then((data) => {
+    console.log("Fetched user data:", data);
+    return data;
+  }).catch((error) => {
+    console.error("Error fetching user data:", error);
+    throw error;
+  });
 };
+
+
+
+
+
+
+// const fetchUser = async (username) => {
+//   const response = await fetch(`https://api.github.com/users/${username}`);
+//   if (!response.ok) {
+//     throw new Error("User not found");
+//   }
+//   return response.json();
+// };
 
 const   showSkeleton = () => {
   avatarSkeleton.classList.remove("hidden");
