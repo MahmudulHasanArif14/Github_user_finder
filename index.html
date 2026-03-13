@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="light">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub User Finder</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --text: #111827;
+      --surface: #ffffff;
+      --surface-muted: #f3f4f6;
+      --border: #e5e7eb;
+      --input-bg: #ffffff;
+      --input-text: #111827;
+      --btn-bg: #e5e7eb;
+      --btn-text: #111827;
+    }
+    html[data-tab="dark"] {
+      --bg: #111827;
+      --text: #f9fafb;
+      --surface: #1f2937;
+      --surface-muted: #374151;
+      --border: #374151;
+      --input-bg: #111827;
+      --input-text: #f9fafb;
+      --btn-bg: #374151;
+      --btn-text: #f9fafb;
+    }
+    html, body {
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .theme-surface { background-color: var(--surface); }
+    .theme-muted { background-color: var(--surface-muted); }
+    .theme-border { border-color: var(--border); }
+    .theme-input { background-color: var(--input-bg); color: var(--input-text); border-color: var(--border); }
+    .theme-toggle { background-color: var(--btn-bg); color: var(--btn-text); }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center py-12 transition-colors duration-300">
+
+  <div class="w-full max-w-3xl px-6 relative">
+
+    <!-- Dark/Light Toggle -->
+    <div class="absolute top-6 right-6">
+      <button id="themeToggle" class="p-2 rounded-lg transition theme-toggle" aria-label="Switch to dark mode">
+        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 7a5 5 0 100 10 5 5 0 000-10z"/>
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-800 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Title -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold">GitHub Profile Finder</h1>
+      <p class="mt-2">Search any GitHub user and explore their public profile</p>
+    </div>
+
+    <!-- Search Box -->
+    <div class="shadow-lg rounded-xl p-6 mb-8 theme-surface">
+      <div class="flex gap-3">
+        <input id="usernameInput" type="text" placeholder="Enter GitHub username..."
+          class="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black theme-input">
+        <button id="searchBtn" class="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition">Search</button>
+      </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="rounded-xl shadow-lg p-8 animate-pulse theme-surface">
+      <div class="flex items-center gap-6">
+        <div id="avatarSkeleton" class="w-24 h-24 rounded-full theme-muted"></div>
+        <img id="avatarImg" class="w-24 h-24 rounded-full hidden" alt="">
+        <div class="flex-1 space-y-3">
+          <div id="nameSkeleton" class="h-5 w-48 rounded theme-muted"></div>
+          <h2 id="profileName" class="text-xl font-semibold hidden"></h2>
+          <div id="userSkeleton" class="h-4 w-28 rounded theme-muted"></div>
+          <p id="profileUsername" class="text-sm hidden"></p>
+          <div id="bioSkeleton" class="h-4 w-full rounded theme-muted"></div>
+          <p id="profileBio" class="text-sm hidden"></p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-6 mt-8">
+        <div class="p-4 rounded-lg text-center space-y-2 theme-muted">
+          <div id="reposSkeleton" class="h-6 w-12 mx-auto rounded theme-surface"></div>
+          <div id="reposLabelSkeleton" class="h-4 w-20 mx-auto rounded theme-surface"></div>
+          <div id="reposValue" class="text-lg font-semibold hidden"></div>
+          <div class="text-xs uppercase hidden">Repos</div>
+        </div>
+        <div class="p-4 rounded-lg text-center space-y-2 theme-muted">
+          <div id="followersSkeleton" class="h-6 w-12 mx-auto rounded theme-surface"></div>
+          <div id="followersLabelSkeleton" class="h-4 w-20 mx-auto rounded theme-surface"></div>
+          <div id="followersValue" class="text-lg font-semibold hidden"></div>
+          <div class="text-xs uppercase hidden">Followers</div>
+        </div>
+        <div class="p-4 rounded-lg text-center space-y-2 theme-muted">
+          <div id="followingSkeleton" class="h-6 w-12 mx-auto rounded theme-surface"></div>
+          <div id="followingLabelSkeleton" class="h-4 w-20 mx-auto rounded theme-surface"></div>
+          <div id="followingValue" class="text-lg font-semibold hidden"></div>
+          <div class="text-xs uppercase hidden">Following</div>
+        </div>
+      </div>
+
+      <!-- Extra Info -->
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <div id="location" class="text-sm hidden"></div>
+        <div id="company" class="text-sm hidden"></div>
+        <div id="blog" class="text-sm hidden"></div>
+        <div id="twitter" class="text-sm hidden"></div>
+        <div id="extraSkeleton1" class="h-4 w-40 rounded theme-muted"></div>
+        <div id="extraSkeleton2" class="h-4 w-40 rounded theme-muted"></div>
+        <div id="extraSkeleton3" class="h-4 w-40 rounded theme-muted"></div>
+        <div id="extraSkeleton4" class="h-4 w-40 rounded theme-muted"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggle");
+    const html = document.documentElement;
+    const sun = document.getElementById("sunIcon");
+    const moon = document.getElementById("moonIcon");
+
+    const setTheme = (theme) => {
+      html.setAttribute("data-tab", theme);
+      localStorage.theme = theme;
+      if (theme === "dark") {
+        sun.classList.remove("hidden");
+        moon.classList.add("hidden");
+        toggleBtn.setAttribute("aria-label", "Switch to light mode");
+      } else {
+        sun.classList.add("hidden");
+        moon.classList.remove("hidden");
+        toggleBtn.setAttribute("aria-label", "Switch to dark mode");
+      }
+    };
+
+    const savedTheme = localStorage.theme;
+    const initialTheme = savedTheme || "light";
+    setTheme(initialTheme);
+
+    toggleBtn.addEventListener("click", () => {
+      const nextTheme = html.getAttribute("data-tab") === "dark" ? "light" : "dark";
+      setTheme(nextTheme);
+    });
+  </script>
+  <script src="script.js"></script>
+
+</body>
+</html>
