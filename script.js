@@ -33,7 +33,12 @@ const extraSkeletons = [
 
 
 const fetchUser= (username) => {
-  return fetch(`https://api.github.com/users/${username}`).then((response) => response.json())
+  return fetch(`https://api.github.com/users/${username}`).then((response) => {
+    if (!response.ok) {
+      throw new Error("User not found");
+    }
+    return response.json();
+  })
   .then((data) => {
     console.log("Fetched user data:", data);
     return data;
